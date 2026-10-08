@@ -1,27 +1,58 @@
 'use client'
 
 import { useCharacter } from '@/store/character-store'
-import { suggestedSpellSlots } from '@/lib/dnd'
+import {
+  suggestedSpellSlots,
+  abilityModifier,
+  proficiencyBonusByLevel,
+  spellSaveDC as calcSpellSaveDC,
+  spellAttackBonus as calcSpellAttackBonus,
+  signed,
+  type AbilityKey,
+} from '@/lib/dnd'
 import { RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 /**
  * Top of page 2 left column: spellcasting ability, modifier, save DC,
  * spell attack bonus. Plus the 3x3 spell slots grid to its right.
+ *
+ * Spellcasting Ability is editable (chosen by the player). Modifier / Save
+ * DC / Spell Attack Bonus are auto-derived at render time from the chosen
+ * spellcasting ability's score + level-based proficiency bonus.
  */
+const ABILITY_MAP: Record<string, AbilityKey> = {
+  Strength: 'str', Dexterity: 'dex', Constitution: 'con',
+  Intelligence: 'int', Wisdom: 'wis', Charisma: 'cha',
+}
+
 export function SpellcastingHeader() {
   const sheet = useCharacter((s) => s.sheet)
   const setField = useCharacter((s) => s.setField)
   const setSpellSlotTotal = useCharacter((s) => s.setSpellSlotTotal)
   const toggleSpellSlotExpended = useCharacter((s) => s.toggleSpellSlotExpended)
 
+  // --- Derived spellcasting stats ---
+  const level = typeof sheet.level === 'number' ? sheet.level : 1
+  const prof = proficiencyBonusByLevel(level)
+
+  const spellAbKey = ABILITY_MAP[sheet.spellcastingAbility] ?? null
+  const spellScore = spellAbKey
+    ? (typeof sheet.abilities[spellAbKey].score === 'number'
+        ? (sheet.abilities[spellAbKey].score as number)
+        : 10)
+    : 10
+  const spellMod = abilityModifier(spellScore)
+  const saveDC = calcSpellSaveDC(prof, spellMod)
+  const atkBonus = calcSpellAttackBonus(prof, spellMod)
+
   function autoFillSlots() {
-    const level = typeof sheet.level === 'number' ? sheet.level : 1
-    const suggested = suggestedSpellSlots(level)
+    const lvl = typeof sheet.level === 'number' ? sheet.level : 1
+    const suggested = suggestedSpellSlots(lvl)
     suggested.forEach((total, idx) => {
       setSpellSlotTotal(idx + 1, total)
     })
-    toast.success(`Filled spell slots for level ${level} (full caster)`)
+    toast.success(`Filled spell slots for level ${lvl} (full caster)`)
   }
 
   return (
@@ -30,30 +61,26 @@ export function SpellcastingHeader() {
       <div className="sheet-panel p-2 flex flex-col gap-1.5">
         <div className="sheet-label-lg text-center">SPELLCASTING</div>
 
-        <SpellStat
-          label="Spellcasting Ability"
-          value={sheet.spellcastingAbility}
-          onChange={(v) => setField('spellcastingAbility', v)}
-          placeholder="Charisma"
-        />
-        <SpellStat
-          label="Spellcasting Modifier"
-          value={sheet.spellcastingModifier}
-          onChange={(v) => setField('spellcastingModifier', v)}
-          placeholder="+3"
-        />
-        <SpellStat
-          label="Spell Save DC"
-          value={sheet.spellSaveDC}
-          onChange={(v) => setField('spellSaveDC', v)}
-          placeholder="14"
-        />
-        <SpellStat
-          label="Spell Attack Bonus"
-          value={sheet.spellAttackBonus}
-          onChange={(v) => setField('spellAttackBonus', v)}
-          placeholder="+5"
-        />
+        {/* Spellcasting ability — editable choice */}
+        <div className="flex flex-col">
+          <div className="sheet-label text-left">Spellcasting Ability</div>
+          <select
+            value={sheet.spellcastingAbility}
+            onChange={(e) => setField('spellcastingAbility', e.target.value)}
+            className="sheet-input-line text-sm font-bold bg-transparent cursor-pointer"
+            aria-label="Spellcasting ability"
+          >
+            <option value="">— choose —</option>
+            {Object.keys(ABILITY_MAP).map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Derived stats — read-only */}
+        <DerivedStat label="Spellcasting Modifier" value={signed(spellMod)} />
+        <DerivedStat label="Spell Save DC" value={String(saveDC)} />
+        <DerivedStat label="Spell Attack Bonus" value={signed(atkBonus)} />
       </div>
 
       {/* Spell slots (3x3 grid) */}
@@ -134,28 +161,18 @@ export function SpellcastingHeader() {
   )
 }
 
-function SpellStat({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-  placeholder?: string
-}) {
+function DerivedStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col">
       <div className="sheet-label text-left">{label}</div>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="sheet-input-line text-sm font-bold"
-        placeholder={placeholder}
+      <div
+        className="text-sm font-bold py-1"
+        style={{ color: 'var(--ink)' }}
         aria-label={label}
-      />
+        title={`${label} — auto-derived`}
+      >
+        {value}
+      </div>
     </div>
   )
 }

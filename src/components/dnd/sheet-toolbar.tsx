@@ -6,7 +6,6 @@ import {
   FolderOpen,
   RotateCcw,
   FilePlus,
-  Calculator,
   Trash2,
   Download,
   Upload,
@@ -31,7 +30,8 @@ interface SavedCharacterMeta {
 }
 
 /**
- * Top action toolbar: New / Save / Load / Recalc / Export / Import / Reset.
+ * Top action toolbar: New / Save / Load / Export / Import / Reset.
+ * Derived stats auto-update at render time, so no Recalc button needed.
  */
 export function SheetToolbar() {
   const sheet = useCharacter((s) => s.sheet)
@@ -40,7 +40,6 @@ export function SheetToolbar() {
   const setSavedId = useCharacter((s) => s.setSavedId)
   const resetDefault = useCharacter((s) => s.resetDefault)
   const newBlank = useCharacter((s) => s.newBlank)
-  const recalcDerived = useCharacter((s) => s.recalcDerived)
 
   const [loadOpen, setLoadOpen] = useState(false)
   const [savedList, setSavedList] = useState<SavedCharacterMeta[]>([])
@@ -212,18 +211,6 @@ export function SheetToolbar() {
       >
         <FolderOpen className="w-3.5 h-3.5 mr-1" />
         Load
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => {
-          recalcDerived()
-          toast.success('Derived stats recalculated (Prof Bonus, Initiative, Spell DC, etc.)')
-        }}
-        className="h-8 text-xs"
-      >
-        <Calculator className="w-3.5 h-3.5 mr-1" />
-        Recalc
       </Button>
       <Button
         size="sm"

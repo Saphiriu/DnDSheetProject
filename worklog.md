@@ -91,3 +91,54 @@ Stage Summary:
 - Pre-loaded example (Jichael Mackson, Bard 2, Elf) renders identically to the filled-in PDF on first visit.
 - Mobile-responsive (375px viewport works).
 - Lint clean. Ready to deliver.
+
+---
+Task ID: 3
+Agent: main
+Task: User-requested refinements — remove dice roller, fix stat bar, auto-derive Initiative/PassivePerception, add JoAT toggle with flat +1.
+
+Work Log:
+- Removed `src/components/dnd/dice-roller.tsx` entirely (deleted the file).
+- Removed `<DiceRoller />` import and usage from `src/app/page.tsx`. Updated the footer tip text from "click the red dice icon" to "Derived stats auto-update from ability scores".
+- Removed the per-weapon "Roll attack" dice button from `src/components/dnd/features-column.tsx` (removed the `Dices` icon import, the `rollD20` selector, the `<div class="flex items-center">` wrapper, and bumped the grid columns from `[1fr_70px_120px_1fr_24px]` to `[1fr_90px_130px_1fr_24px]` to use the freed space).
+- Removed the per-spell "Roll spell damage" dice button from `src/components/dnd/spells-table.tsx` (removed `Dices` icon import, `rollDice` selector, the wrapping `<div class="flex items-center">`, kept the simple `<input>` directly).
+- Removed `rollD20`, `rollDice`, `pushRoll`, `clearRolls`, the `rolls` state array, and the `RollHistoryItem` type from `src/store/character-store.ts`. Also removed `recalcDerived` (no longer needed since derived stats compute on-the-fly).
+- Bumped localStorage version to `v4` (cleared stale cached state with old schema fields like `intelligence`, `proficiencyBonus`, `initiative`, `passivePerception`, `spellSaveDC`, `spellAttackBonus`, `spellcastingModifier`).
+- Removed `intelligence`, `proficiencyBonus`, `initiative`, `passivePerception`, `spellcastingModifier`, `spellSaveDC`, `spellAttackBonus` from the `CharacterSheet` interface in `src/lib/character-defaults.ts` (they're all computed at render time now). Removed from both `defaultCharacter()` and `blankCharacter()`.
+- Added `jackOfAllTrades: boolean` field to the `CharacterSheet` interface. Defaulted to `true` in `defaultCharacter()` (since the example character is a Bard level 2 — Bards get JoAT at level 2). Defaulted to `false` in `blankCharacter()`.
+- Added `toggleJackOfAllTrades` action to the Zustand store.
+- Updated `src/lib/dnd.ts`:
+  - Added `jackOfAllTradesBonus()` helper that returns a flat `1` (per user's explicit request: "JoAT adds flat +1 not PB/2").
+  - Updated `skillCheckTotal(...)` to accept a `joat` parameter; when the character is not proficient and JoAT is on, returns `abilityMod + 1` (flat).
+- Rewrote `src/components/dnd/stats-bar.tsx` to be a 5-cell bar (was 6) — removed the INTELLIGENCE cell entirely. New layout: PROFICIENCY BONUS (auto-derived from level) | INITIATIVE (auto-derived from DEX mod) | PASSIVE PERCEPTION (auto-derived from 10 + WIS mod + PB if Perception is proficient) | SPEED (editable) | SIZE (editable). The first three are read-only text displays; SPEED and SIZE are editable inputs.
+- Rewrote `src/components/dnd/ability-card.tsx`:
+  - Reads `joat = sheet.jackOfAllTrades` from the store.
+  - Skill totals now call `skillCheckTotal(mod, prof, st.proficient, st.expertise, joat)`.
+  - Saving throw totals also use `skillCheckTotal` (since saving throws are ability checks, JoAT applies when not proficient).
+- Updated `src/components/dnd/proficiencies-row.tsx` to add a JoAT toggle button directly under the Heroic Inspiration shield badge. Uses the `Sparkles` lucide icon, shows "Jack of All Trades / +1 to non-proficient checks" label, highlights gold when active.
+- Rewrote `src/components/dnd/spellcasting-header.tsx`:
+  - Spellcasting Ability is now a `<select>` dropdown (Strength/Dexterity/Constitution/Intelligence/Wisdom/Charisma).
+  - Spellcasting Modifier / Spell Save DC / Spell Attack Bonus are read-only computed displays (using `abilityModifier`, `proficiencyBonusByLevel`, `calcSpellSaveDC`, `calcSpellAttackBonus` from `dnd.ts`).
+- Removed the "Recalc" button from `src/components/dnd/sheet-toolbar.tsx` (and removed the `Calculator` icon import and the `recalcDerived` selector) — derived stats auto-update live now, so manual recalc is unnecessary.
+
+Verification (Agent Browser):
+- Page loads with HTTP 200, no console errors, no runtime errors.
+- Toolbar shows only: New / Save / Load / Export / Import / Example (no Recalc).
+- Stats bar shows 5 cells: PROFICIENCY BONUS +2, INITIATIVE +0, PASSIVE PERCEPTION 15, SPEED 30, SIZE M (no INTELLIGENCE).
+- Verified skill totals are correct:
+  - With JoAT ON: Acrobatics (proficient) = +2, Animal Handling (not proficient) = +4 (WIS +3 + JoAT +1), Religion (not proficient) = +1 (INT +0 + JoAT +1), Deception (proficient) = +6, Intimidation (not proficient) = +5 (CHA +4 + JoAT +1).
+  - After toggling JoAT OFF: proficient skills unchanged; non-proficient skills dropped by 1 (Animal Handling → +3, Intimidation → +4, Religion → +0).
+- Verified spell stats auto-derive: with CHA 18 → Spellcasting Modifier +4, Spell Save DC 14, Spell Attack Bonus +6. After editing CHA to 20 → Spellcasting Modifier +5, Spell Save DC 15, Spell Attack Bonus +7 (all auto-updated without any "Recalc" button press).
+- Verified Initiative auto-derives from DEX (10 → +0).
+- Verified Passive Perception auto-derives: 10 + WIS(+3) + PB(+2 because Perception is proficient) = 15.
+- `bun run lint` passes with 0 errors and 0 warnings.
+- Dev server log shows only HTTP 200 responses, no runtime errors after the fixes.
+
+Stage Summary:
+- Dice roller entirely removed (file deleted, all references cleared).
+- Stat bar reduced from 6 cells to 5 (INTELLIGENCE removed).
+- Proficiency Bonus / Initiative / Passive Perception are now read-only auto-derived values computed from level / DEX / WIS + Perception proficiency.
+- Skill totals auto-calc: proficient adds PB, expertise doubles PB, JoAT adds flat +1 to non-proficient ability checks.
+- Jack of All Trades toggle added under the Heroic Inspiration shield.
+- Spellcasting modifier / save DC / attack bonus also auto-derive from the chosen spellcasting ability + level.
+- No more "Recalc" button — everything auto-updates at render time.

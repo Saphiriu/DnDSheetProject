@@ -96,7 +96,7 @@ export interface CharacterSheet {
   toolsProficient: string
   languages: string
   heroicInsppiration: boolean
-  jackOfAllTrades: boolean // Bard level-2 feature: adds floor(PB/2) to non-proficient ability checks
+  jackOfAllTrades: boolean // Bard level-2 feature: adds flat +1 to non-proficient ability checks
 
   // Spellcasting — spellcasting ability is chosen; modifier / save DC / attack
   // bonus are all auto-derived at render time.

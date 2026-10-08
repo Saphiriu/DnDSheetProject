@@ -11,7 +11,6 @@ import { ProficienciesRow } from '@/components/dnd/proficiencies-row'
 import { SpellcastingHeader } from '@/components/dnd/spellcasting-header'
 import { SpellsTable } from '@/components/dnd/spells-table'
 import { CharacterSidebar } from '@/components/dnd/character-sidebar'
-import { DiceRoller } from '@/components/dnd/dice-roller'
 import { useCharacter } from '@/store/character-store'
 
 export default function Home() {
@@ -19,13 +18,6 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false)
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setHydrated(true), [])
-
-  // Trigger a one-time auto-derive when the store first hydrates so derived
-  // stats stay in sync with the base stats after refresh.
-  const recalc = useCharacter((s) => s.recalcDerived)
-  useEffect(() => {
-    if (hydrated) recalc()
-  }, [hydrated, recalc])
 
   const level = useCharacter((s) => s.sheet.level)
 
@@ -109,12 +101,10 @@ export default function Home() {
             Edits auto-save locally · use the toolbar to save to the cloud.
           </span>
           <span style={{ color: 'var(--ink-faint)' }}>
-            Tip: click the red dice icon (bottom-right) to roll.
+            Derived stats (PB, Initiative, Passive Perception, spell DC) auto-update from ability scores.
           </span>
         </div>
       </footer>
-
-      <DiceRoller />
     </main>
   )
 }

@@ -2,22 +2,23 @@
 
 import { useCharacter } from '@/store/character-store'
 import { ARMOR_TYPES, type ArmorType } from '@/lib/dnd'
-import { Star } from 'lucide-react'
+import { Star, Sparkles } from 'lucide-react'
 
 /**
- * Bottom of page 1: Heroic Inspiration badge + Equipment Training &
- * Proficiencies (armor / weapons / tools).
+ * Bottom of page 1: Heroic Inspiration badge + Jack of All Trades toggle +
+ * Equipment Training & Proficiencies (armor / weapons / tools).
  */
 export function ProficienciesRow() {
   const sheet = useCharacter((s) => s.sheet)
   const setField = useCharacter((s) => s.setField)
   const toggleArmorTraining = useCharacter((s) => s.toggleArmorTraining)
   const toggleHeroic = useCharacter((s) => s.toggleHeroicInspiration)
+  const toggleJoAT = useCharacter((s) => s.toggleJackOfAllTrades)
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-2">
-      {/* Heroic Inspiration */}
-      <div className="sheet-shield p-2 flex flex-col items-center justify-start">
+      {/* Heroic Inspiration + Jack of All Trades */}
+      <div className="sheet-shield p-2 flex flex-col items-center justify-start gap-2">
         <div className="sheet-label">HEROIC INSPIRATION</div>
         <button
           type="button"
@@ -27,6 +28,29 @@ export function ProficienciesRow() {
           aria-label="Toggle heroic inspiration"
         >
           <Star className="w-4 h-4" />
+        </button>
+
+        {/* Jack of All Trades toggle (under Heroic Inspiration) */}
+        <button
+          type="button"
+          onClick={toggleJoAT}
+          className="mt-2 w-full flex items-center gap-2 py-1.5 px-2 border text-[10px] font-bold uppercase tracking-wider"
+          style={{
+            borderColor: 'var(--rule)',
+            color: sheet.jackOfAllTrades ? 'var(--ink)' : 'var(--ink-faint)',
+            backgroundColor: sheet.jackOfAllTrades
+              ? 'rgba(180, 138, 59, 0.18)'
+              : 'transparent',
+          }}
+          aria-pressed={sheet.jackOfAllTrades}
+          aria-label="Toggle Jack of All Trades (+1 to non-proficient ability checks)"
+          title="Jack of All Trades — Bard level-2 feature: +1 to ability checks you are not proficient in"
+        >
+          <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="text-[9px] leading-tight text-left">
+            Jack of All Trades
+            <span className="block font-normal opacity-80">+1 to non-proficient checks</span>
+          </span>
         </button>
       </div>
 

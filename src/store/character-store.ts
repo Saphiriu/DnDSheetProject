@@ -323,7 +323,7 @@ export const useCharacter = create<CharacterStore>()(
       setSavedId: (id) => set({ savedCharId: id }),
     }),
     {
-      name: 'dnd-character-sheet-v3',
+      name: 'dnd-character-sheet-v4',
       partialize: (s) => ({ sheet: s.sheet, savedCharId: s.savedCharId }),
     }
   )

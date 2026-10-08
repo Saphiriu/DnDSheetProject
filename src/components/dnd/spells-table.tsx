@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Trash2, Dices } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { useCharacter } from '@/store/character-store'
 
 const LEVELS = ['C', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
@@ -15,7 +15,6 @@ export function SpellsTable() {
   const addSpell = useCharacter((s) => s.addSpell)
   const updateSpell = useCharacter((s) => s.updateSpell)
   const removeSpell = useCharacter((s) => s.removeSpell)
-  const rollDice = useCharacter((s) => s.rollDice)
 
   // Group by level for easier reading
   const byLevel = LEVELS.map((lvl) => ({
@@ -74,42 +73,14 @@ export function SpellsTable() {
                 </select>
 
                 {/* Name */}
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    value={s.name}
-                    onChange={(e) => updateSpell(s.id, { name: e.target.value })}
-                    className="sheet-input-line text-xs"
-                    placeholder="Spell name"
-                    aria-label="Spell name"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Quick heuristic: try to parse "1d8+3" or "2d6" from notes
-                      const m = s.notes.match(/(\d+)d(\d+)([+-]\d+)?/i)
-                      if (m) {
-                        const cnt = parseInt(m[1], 10)
-                        const f = parseInt(m[2], 10)
-                        const mod = m[3] ? parseInt(m[3], 10) : 0
-                        rollDice(cnt, f, mod, `Damage — ${s.name}`)
-                      } else {
-                        // Otherwise, roll a single d20 with spell attack bonus
-                        const m2 = parseInt(sheet.spellAttackBonus.replace(/[^-\d]/g, ''), 10)
-                        if (!Number.isNaN(m2)) {
-                          // not really an attack roll, but a fallback
-                          rollDice(1, 20, m2, `Spell attack — ${s.name}`)
-                        }
-                      }
-                    }}
-                    className="ml-1"
-                    style={{ color: 'var(--ink-soft)' }}
-                    aria-label="Roll spell damage"
-                    title="Roll spell"
-                  >
-                    <Dices className="w-3 h-3" />
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={s.name}
+                  onChange={(e) => updateSpell(s.id, { name: e.target.value })}
+                  className="sheet-input-line text-xs"
+                  placeholder="Spell name"
+                  aria-label="Spell name"
+                />
 
                 {/* Cast time */}
                 <input

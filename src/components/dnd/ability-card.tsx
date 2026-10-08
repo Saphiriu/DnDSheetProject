@@ -20,7 +20,7 @@ import {
  * Skill totals are auto-derived:
  *   proficient + no expertise → ability mod + proficiency bonus
  *   proficient + expertise     → ability mod + 2 × proficiency bonus
- *   not proficient + JoAT on   → ability mod + floor(proficiency bonus / 2)
+ *   not proficient + JoAT on   → ability mod + 1 (flat)
  *   not proficient + JoAT off  → ability mod
  */
 export function AbilityCard({ ability }: { ability: AbilityKey }) {
