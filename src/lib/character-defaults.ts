@@ -44,6 +44,7 @@ export interface SpellRowState {
   ritual: boolean
   notes: string // short mechanical summary (e.g. "1d6 Psychic DisSa")
   description: string // full spell description (free-form text)
+  iconDataUrl: string // optional uploaded icon image (base64 data URL); replaces the level badge
 }
 
 export interface CharacterSheet {
@@ -251,6 +252,7 @@ export function defaultCharacter(): CharacterSheet {
           'If the target can hear you (though it need not understand you), the target must succeed on a Wisdom saving throw ' +
           'or take 1d6 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.\n\n' +
           'At Higher Levels. The damage increases by 1d6 when you reach 5th level (2d6), 11th level (3d6), and 17th level (4d6).',
+        iconDataUrl: '',
       },
       {
         id: id(), level: 'C', name: 'Prestidigitation', castingTime: '1A', range: '10 ft',
@@ -265,6 +267,7 @@ export function defaultCharacter(): CharacterSheet {
           '• You make a small mark or symbol appear on a surface for 1 hour.\n' +
           '• You create a small, useless trinket that lasts until the end of your next turn.\n\n' +
           'If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.',
+        iconDataUrl: '',
       },
       {
         id: id(), level: 'C', name: 'Mind Sliver', castingTime: '1A', range: '60 ft',
@@ -275,6 +278,7 @@ export function defaultCharacter(): CharacterSheet {
           'The target must make an Intelligence saving throw. On a failed save, the target takes 1d6 psychic damage and ' +
           'subtracts 1d4 from the next saving throw it makes before the end of your next turn.\n\n' +
           'At Higher Levels. The damage increases by 1d6 when you reach 5th level (2d6), 11th level (3d6), and 17th level (4d6).',
+        iconDataUrl: '',
       },
       // L1
       {
@@ -287,6 +291,7 @@ export function defaultCharacter(): CharacterSheet {
           'companions do anything harmful to it. The charmed creature is friendly to you.\n\n' +
           'When the spell ends, the creature knows it was charmed by you.\n\n' +
           'At Higher Levels. You can target one additional creature for each slot level above 1st.',
+        iconDataUrl: '',
       },
       {
         id: id(), level: '1', name: 'Color Spray', castingTime: '1A', range: '15 ft cone',
@@ -298,6 +303,7 @@ export function defaultCharacter(): CharacterSheet {
           'Roll 6d10; the total is how many hit points of creatures the spell can affect. Creatures are affected in order of their ' +
           'hit points, starting with the lowest. Subtract each creature\'s hit points from the total before moving to the next.\n\n' +
           'At Higher Levels. Roll 2d10 more for each slot level above 1st.',
+        iconDataUrl: '',
       },
       {
         id: id(), level: '1', name: 'Bane', castingTime: '1A', range: '30 ft (3 targets)',
@@ -308,6 +314,7 @@ export function defaultCharacter(): CharacterSheet {
           'the targets subtract 1d4 from attack rolls and saving throws for the duration.\n\n' +
           'A creature can be affected by only one Bane at a time.\n\n' +
           'At Higher Levels. You can target one additional creature for each slot level above 1st.',
+        iconDataUrl: '',
       },
       {
         id: id(), level: '1', name: 'Cure Wounds', castingTime: '1A', range: 'Touch',
@@ -317,6 +324,7 @@ export function defaultCharacter(): CharacterSheet {
           'A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier. ' +
           'This spell has no effect on undead or constructs.\n\n' +
           'At Higher Levels. The healing increases by 1d8 for each slot level above 1st.',
+        iconDataUrl: '',
       },
       {
         id: id(), level: '1', name: 'Sleep', castingTime: '1A', range: '90 ft',
@@ -328,6 +336,7 @@ export function defaultCharacter(): CharacterSheet {
           'Starting with the creature with the lowest hit points, each creature affected by this spell falls unconscious. Subtract each ' +
           'creature\'s hit points from the total before moving to the next. Undead and creatures immune to being charmed aren\'t affected.\n\n' +
           'At Higher Levels. Roll 2d8 more for each slot level above 1st.',
+        iconDataUrl: '',
       },
     ],
     damageCantrips: '',

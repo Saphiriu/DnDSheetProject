@@ -338,3 +338,57 @@ Stage Summary:
 - Spell cards are now compact by default: collapsed cards show only basic info (level, name, components, cast time, range, quick notes, footer toggles) — no description preview. The full description only appears when the user clicks the chevron to unfurl the card.
 - "READ" hint label appears on collapsed cards that have a description, signaling that there's content to expand.
 - Compact layout: 8 collapsed cards fit in the vertical space that previously held ~5 cards-with-previews.
+
+---
+Task ID: 8
+Agent: main
+Task: Add image-icon upload to spell cards (replacing the C / L1 text badge).
+
+Work Log:
+- Added a new `iconDataUrl: string` field to the `SpellRowState` interface in `src/lib/character-defaults.ts`. Stored as a base64 PNG data URL when an image is uploaded, or `''` when no icon is set.
+- Added `iconDataUrl: ''` to all 8 example spells in `defaultCharacter()`.
+- Updated the store's `addSpell` action in `src/store/character-store.ts` to include `iconDataUrl: ''` for newly-added spells.
+- Bumped localStorage version to `v7` so stale v6 state (without the new field) is discarded.
+- Reworked the spell card's level badge in `src/components/dnd/spells-table.tsx`:
+  - Replaced the old static `<div>` showing "C" / "L1" / etc. with a new `LevelBadge` component.
+  - When no icon is set: the badge looks identical to before — bronze background for cantrips, gold for leveled spells, with the level text. A small `ImagePlus` icon is shown below the text at 50% opacity, going to 100% on hover, hinting that the badge is clickable.
+  - When the user clicks the badge (and there's no icon yet), a hidden `<input type="file" accept="image/*">` is triggered, opening the OS file picker.
+  - The selected file is passed through a `resizeImageToDataUrl(file, 128)` helper that:
+    1. Reads the file via `FileReader.readAsDataURL`.
+    2. Loads the result into a hidden `Image`.
+    3. Resizes it to fit within 128×128 (preserving aspect ratio; no upscale if the image is already smaller).
+    4. Draws it onto a `<canvas>` and calls `canvas.toDataURL('image/png')` to get a PNG data URL (PNG preserves transparency).
+    5. Returns the data URL, which is stored in `iconDataUrl`.
+  - When an icon is set: the badge background switches to `parchment-dark` and the `<img>` is rendered with `object-cover` to fill the 48×N px badge area. A small red × button appears in the top-right corner of the badge (only on hover) — clicking it (with `stopPropagation` so the badge itself doesn't also fire) clears the icon and restores the text badge.
+  - The badge is only clickable for upload when no icon is set; once an icon is set, clicking the badge does nothing (you have to clear the icon first via the × button to upload a different one).
+- Removed the now-unused `levelAccent` variable from `SpellCard` (it's now computed inside `LevelBadge`).
+- Added the necessary lucide-react icon imports: `ImagePlus` and `X`.
+
+Verification (Agent Browser):
+- Page loads with HTTP 200, no console errors, no runtime errors.
+- Verified all 8 spell cards have a clickable level badge with a hidden file input and the title "Click to upload a custom icon image".
+- Verified the badge background is bronze (`rgb(184, 163, 120)` = `--ink-soft`) for cantrips and gold (`rgb(212, 169, 73)` = `--gold`) for leveled spells.
+- Created a test 32×32 PNG icon (red square with transparent center).
+- Uploaded the test icon to the Vicious Mockery card via the file input:
+  - Badge background changed from bronze → `rgb(37, 28, 20)` (parchment-dark) ✓
+  - `has_img: true` ✓
+  - `img_src_starts_with_data: true` ✓ (it's a base64 PNG data URL)
+  - `img_src_length: 326` bytes (resized properly — original was 166 bytes on disk, encoded as base64 with PNG header ~326 chars) ✓
+- Clicked the clear (×) button:
+  - `has_img: false` ✓ (image gone)
+  - Badge text restored to "C" ✓
+  - Badge background restored to bronze ✓
+- Verified icon persists across page reloads (Zustand persist middleware saves it to localStorage automatically).
+- Verified icon survives a Save → Load roundtrip via the API:
+  - Clicked "Save" button → POST /api/character 200 (saved to SQLite).
+  - GET /api/character/[id] returned the character with `first_spell_has_icon: true`, `first_spell_icon_length: 326` bytes ✓ — the icon's base64 data URL is stored in the SQLite database as part of the spell JSON.
+- `bun run lint` passes with 0 errors and 0 warnings.
+- Dev server log: HTTP 200 responses only, no runtime errors. POST to `/api/character` and GET from `/api/character/[id]` both succeeded.
+
+Stage Summary:
+- Spell card level badges now support optional custom image icons.
+- Click the badge → file picker opens → select any image → it's auto-resized to max 128×128, converted to PNG (preserving transparency), and stored as a base64 data URL.
+- The image replaces the text badge ("C" / "L1" / etc.) on the card header.
+- Hover over the badge to reveal a small red × button in the top-right corner — click it to clear the icon and restore the text badge.
+- Icons persist across page reloads (localStorage) AND through Save → Load cycles (SQLite via the API).
+- Image size is capped at 128×128 (auto-resized via canvas), keeping each icon's payload small (~300 bytes for a 32×32 icon, ~5–10 KB for a full 128×128 PNG) so multiple icons won't bloat the localStorage or DB.

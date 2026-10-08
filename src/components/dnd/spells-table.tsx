@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Trash2, ChevronDown, ChevronUp, Sparkles, Flame, Clock, Target } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Plus, Trash2, ChevronDown, ChevronUp, Sparkles, Flame, Clock, Target, ImagePlus, X } from 'lucide-react'
 import { useCharacter } from '@/store/character-store'
 
 const LEVELS = ['C', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
@@ -96,10 +96,6 @@ function SpellCard({ spell, onChange, onRemove }: SpellCardProps) {
   const [expanded, setExpanded] = useState(false)
   const s = spell
 
-  // Pick a "school color" accent — we don't track school, so just use level
-  // color hint: cantrip = bronze, L1 = gold, L2+ = warmer
-  const levelAccent = s.level === 'C' ? 'var(--ink-soft)' : 'var(--gold)'
-
   return (
     <div
       className="relative border flex flex-col overflow-hidden"
@@ -108,23 +104,18 @@ function SpellCard({ spell, onChange, onRemove }: SpellCardProps) {
         backgroundColor: 'var(--parchment)',
       }}
     >
-      {/* Card header — level badge + name + tags + remove */}
+      {/* Card header — level badge (or uploaded icon) + name + tags + remove */}
       <div
         className="flex items-stretch border-b"
         style={{ borderColor: 'var(--rule)' }}
       >
-        {/* Level badge */}
-        <div
-          className="flex items-center justify-center w-12 flex-shrink-0 text-[10px] font-extrabold uppercase"
-          style={{
-            backgroundColor: levelAccent,
-            color: 'var(--parchment)',
-            letterSpacing: '0.05em',
-          }}
-          title={s.level === 'C' ? 'Cantrip' : `Level ${s.level} spell`}
-        >
-          {s.level === 'C' ? 'C' : `L${s.level}`}
-        </div>
+        {/* Level badge — clickable to upload an icon image to replace it */}
+        <LevelBadge
+          level={s.level}
+          iconDataUrl={s.iconDataUrl}
+          onUploadIcon={(dataUrl) => onChange({ iconDataUrl: dataUrl })}
+          onClearIcon={() => onChange({ iconDataUrl: '' })}
+        />
 
         {/* Name + Concentration/Ritual tags */}
         <div className="flex-1 flex flex-col px-2.5 py-2 min-w-0">
@@ -325,6 +316,164 @@ function Tag({
       {label}
     </span>
   )
+}
+
+/**
+ * The square badge on the left side of each spell card header. By default
+ * shows the spell level ("C" for cantrip or "L1".."L9"). When the user
+ * clicks it, a file picker opens; if they select an image, it gets resized
+ * to max 128×128 (preserving aspect ratio), converted to PNG, and stored
+ * as a base64 data URL in the spell's `iconDataUrl` field. The image then
+ * replaces the text badge. A small × button appears on hover to clear
+ * the icon and restore the text badge.
+ */
+function LevelBadge({
+  level,
+  iconDataUrl,
+  onUploadIcon,
+  onClearIcon,
+}: {
+  level: string
+  iconDataUrl: string
+  onUploadIcon: (dataUrl: string) => void
+  onClearIcon: () => void
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Cantrip accent = bronze-ish, leveled spells = gold
+  const levelAccent = level === 'C' ? 'var(--ink-soft)' : 'var(--gold)'
+
+  async function handleFileSelected(file: File) {
+    try {
+      const dataUrl = await resizeImageToDataUrl(file, 128)
+      onUploadIcon(dataUrl)
+    } catch (err) {
+      console.error('Failed to load image:', err)
+    }
+  }
+
+  return (
+    <div
+      className="relative flex items-center justify-center w-12 flex-shrink-0 cursor-pointer group"
+      style={{ backgroundColor: iconDataUrl ? 'var(--parchment-dark)' : levelAccent }}
+      onClick={() => {
+        if (!iconDataUrl) fileInputRef.current?.click()
+      }}
+      title={
+        iconDataUrl
+          ? 'Custom icon · hover and click × to clear'
+          : 'Click to upload a custom icon image'
+      }
+    >
+      {iconDataUrl ? (
+        <>
+          <img
+            src={iconDataUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            style={{ display: 'block' }}
+            draggable={false}
+          />
+          {/* Clear button — only visible on hover */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onClearIcon()
+            }}
+            className="absolute top-0.5 right-0.5 w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{
+              backgroundColor: 'var(--blood)',
+              color: 'var(--parchment)',
+              borderRadius: '50%',
+            }}
+            aria-label="Clear custom icon"
+            title="Clear custom icon"
+          >
+            <X className="w-2.5 h-2.5" strokeWidth={3} />
+          </button>
+        </>
+      ) : (
+        <div className="flex flex-col items-center gap-0.5">
+          <span
+            className="text-[10px] font-extrabold uppercase"
+            style={{
+              color: 'var(--parchment)',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {level === 'C' ? 'C' : `L${level}`}
+          </span>
+          <ImagePlus
+            className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity"
+            style={{ color: 'var(--parchment)' }}
+          />
+        </div>
+      )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) void handleFileSelected(file)
+          // Reset the input so the same file can be re-selected later
+          e.target.value = ''
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Read an image File, resize it to fit within `maxDim × maxDim` (preserving
+ * aspect ratio), and return a PNG data URL. PNG preserves transparency for
+ * icons that have transparent backgrounds. Throws if the file can't be loaded
+ * as an image.
+ */
+function resizeImageToDataUrl(file: File, maxDim: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        let { width, height } = img
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.max(1, Math.round(height * (maxDim / width)))
+            width = maxDim
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.max(1, Math.round(width * (maxDim / height)))
+            height = maxDim
+          }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          reject(new Error('Canvas 2d context unavailable'))
+          return
+        }
+        // Fill with white so transparent images don't get black backgrounds
+        // when later rendered on dark backgrounds via <img>. (PNG transparency
+        // is still preserved if the source image had it.)
+        ctx.drawImage(img, 0, 0, width, height)
+        try {
+          resolve(canvas.toDataURL('image/png'))
+        } catch (err) {
+          reject(err)
+        }
+      }
+      img.onerror = () => reject(new Error('Failed to load image'))
+      img.src = reader.result as string
+    }
+    reader.onerror = () => reject(new Error('Failed to read file'))
+    reader.readAsDataURL(file)
+  })
 }
 
 function ComponentToggle({
