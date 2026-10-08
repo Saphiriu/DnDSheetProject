@@ -1,0 +1,489 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* DnD 5.5e character sheet theme */
+  --parchment: #f3ead2;
+  --parchment-dark: #e6d8a8;
+  --parchment-edge: #c9b173;
+  --ink: #2a1f0f;
+  --ink-soft: #4a3b1f;
+  --ink-faint: #76643a;
+  --rule: #3a2c14;
+  --rule-light: rgba(58, 44, 20, 0.18);
+  --blood: #6b0d0d;
+  --gold: #b48a3b;
+  --grid: rgba(80, 50, 20, 0.09);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ----------------------------------------------------------------
+   DnD 5.5e character sheet — parchment styling
+   ---------------------------------------------------------------- */
+
+.parchment-bg {
+  background-color: var(--parchment);
+  background-image:
+    radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 245, 210, 0.6) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(150, 100, 40, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 0% 100%, rgba(150, 100, 40, 0.08) 0%, transparent 60%);
+  position: relative;
+}
+
+.parchment-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(80, 50, 20, 0.025) 0px, rgba(80, 50, 20, 0.025) 1px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(90deg, rgba(80, 50, 20, 0.025) 0px, rgba(80, 50, 20, 0.025) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.sheet-ink {
+  color: var(--ink);
+}
+
+.sheet-rule {
+  border-color: var(--rule);
+}
+
+/* The "panel" — chamfered corner card */
+.sheet-panel {
+  position: relative;
+  background-color: var(--parchment);
+  border: 2px solid var(--rule);
+  /* chamfer 4 corners slightly */
+  clip-path: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    0 calc(100% - 8px),
+    0 8px
+  );
+}
+
+/* Inner frame to hide the chamfer clip's lack of stroke on the diagonal edges.
+   We use ::before to draw the actual 2px border via a slightly larger inset shadow. */
+.sheet-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, var(--rule) 2px, transparent 2px) 0 0 / 100% 100%,
+    linear-gradient(to right, transparent calc(100% - 2px), var(--rule) calc(100% - 2px)) 0 0 / 100% 100%,
+    linear-gradient(to bottom, var(--rule) 2px, transparent 2px) 0 0 / 100% 100%,
+    linear-gradient(to bottom, transparent calc(100% - 2px), var(--rule) calc(100% - 2px)) 0 0 / 100% 100%;
+  clip-path: inherit;
+}
+
+/* Shield-shaped panel for Armor Class, Heroic Inspiration */
+.sheet-shield {
+  background-color: var(--parchment);
+  border: 2px solid var(--rule);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 55%,
+    50% 100%,
+    0 55%
+  );
+  position: relative;
+}
+
+/* Oval (level + XP) */
+.sheet-oval {
+  background-color: var(--parchment);
+  border: 2px solid var(--rule);
+  border-radius: 50% / 40%;
+}
+
+/* Coin-purse shape (flat top, pointed bottom) */
+.sheet-coin {
+  background-color: var(--parchment);
+  border: 1.5px solid var(--rule);
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+  position: relative;
+}
+
+/* Faint square grid background (graph-paper) for free-text areas */
+.sheet-grid {
+  background-color: var(--parchment);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Diamond tracker */
+.sheet-diamond {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  background-color: transparent;
+  border: 1.5px solid var(--rule);
+  transform: rotate(45deg);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sheet-diamond:hover {
+  transform: rotate(45deg) scale(1.12);
+}
+
+.sheet-diamond.is-filled {
+  background-color: var(--blood);
+  border-color: var(--blood);
+}
+
+.sheet-diamond.is-checked {
+  background-color: var(--ink);
+  border-color: var(--ink);
+}
+
+/* Hollow circle (skill proficiency checkbox) */
+.sheet-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: transparent;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.sheet-circle:hover {
+  transform: scale(1.12);
+}
+
+.sheet-circle.is-checked {
+  background-color: var(--ink);
+  border-color: var(--ink);
+}
+
+.sheet-circle.is-expertise {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--rule) inset;
+}
+
+/* Big circular modifier box (abilities) */
+.sheet-modifier-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: var(--parchment);
+  flex-shrink: 0;
+}
+
+.sheet-modifier-circle::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 9px solid var(--rule);
+}
+
+.sheet-modifier-circle .sheet-modifier-value {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* Trapezoidal ability-score box */
+.sheet-score-box {
+  width: 40px;
+  height: 32px;
+  background-color: var(--parchment);
+  border: 1.5px solid var(--rule);
+  clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.sheet-score-box input {
+  width: 36px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Field label small-caps */
+.sheet-label {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.sheet-label-lg {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* Header banner — D&D logo look */
+.sheet-banner {
+  background-color: transparent;
+  background-image: linear-gradient(to bottom, transparent 0%, transparent 70%, rgba(58, 44, 20, 0.07) 100%);
+  text-align: center;
+  font-family: 'Cinzel', 'Trajan Pro', var(--font-geist-sans), serif;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--ink);
+}
+
+.sheet-banner .ampersand {
+  font-family: 'Cinzel', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.5em;
+  display: inline-block;
+  transform: translateY(2px);
+  margin: 0 0.15em;
+}
+
+/* Underlined fill-in input */
+.sheet-input-line {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  outline: none;
+  width: 100%;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  color: var(--ink);
+  padding: 2px 4px;
+}
+
+.sheet-input-line:focus {
+  background-color: rgba(58, 44, 20, 0.06);
+}
+
+.sheet-input-line::placeholder {
+  color: var(--ink-faint);
+}
+
+/* Boxed fill-in input (used for compact stat fields) */
+.sheet-input-box {
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  outline: none;
+  text-align: center;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  color: var(--ink);
+  padding: 2px 2px;
+  font-size: 13px;
+}
+
+.sheet-input-box:focus {
+  background-color: rgba(58, 44, 20, 0.05);
+  border-color: var(--rule);
+}
+
+/* Big stat number (HP/AC) */
+.sheet-big-number {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  text-align: center;
+}
+
+/* Footer copyright micro */
+.sheet-copyright {
+  font-size: 8px;
+  color: var(--ink-faint);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* "Heroic Inspiration" star badge */
+.sheet-star {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--rule);
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: var(--parchment);
+}
+
+.sheet-star.is-active {
+  background-color: var(--gold);
+}
+
+/* Custom scrollbar for long lists */
+.sheet-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.sheet-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sheet-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--ink-faint);
+  border-radius: 4px;
+}
+.sheet-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink-soft);
+}
+
+/* Coin shape's larger variant */
+.coin-purse {
+  width: 100%;
+  height: 60px;
+}
