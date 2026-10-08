@@ -127,10 +127,12 @@ function Page2() {
   return (
     <div className="flex flex-col gap-2">
       <SpellcastingHeader />
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_minmax(280px,30%)] gap-2">
-        <SpellsTable />
-        <CharacterSidebar />
-      </div>
+      {/* Spells take the full width below the spell slots — more cards visible
+          at once, descriptions are easier to read. */}
+      <SpellsTable />
+      {/* The sidebar items (Languages + Alignment, Equipment + Attunement,
+          Coins) move to a compact 3-column row at the bottom of Page 2. */}
+      <CharacterSidebar />
     </div>
   )
 }

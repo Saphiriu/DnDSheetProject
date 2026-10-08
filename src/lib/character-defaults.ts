@@ -87,8 +87,6 @@ export interface CharacterSheet {
   speciesTraits: string
   feats: string
   equipmentTrainingNotes: string
-  appearanceNotes: string
-  backstoryNotes: string
   alignment: string
 
   // Proficiencies
@@ -216,8 +214,6 @@ export function defaultCharacter(): CharacterSheet {
     feats: 'Musician. As you finish a Short or Long Rest, play a song to give Heroic Inspiration ' +
       'to allies who hear it (number of allies = Proficiency Bonus).',
     equipmentTrainingNotes: '',
-    appearanceNotes: '',
-    backstoryNotes: '',
     alignment: 'Chaotic Good',
 
     armorTraining: {
@@ -398,8 +394,6 @@ export function blankCharacter(): CharacterSheet {
     speciesTraits: '',
     feats: '',
     equipmentTrainingNotes: '',
-    appearanceNotes: '',
-    backstoryNotes: '',
     alignment: '',
     armorTraining: { Light: false, Medium: false, Heavy: false, Shields: false },
     weaponsProficient: '',

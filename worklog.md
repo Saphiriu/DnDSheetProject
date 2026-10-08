@@ -250,3 +250,51 @@ Stage Summary:
 - Quick mechanical notes (the old `notes` field) are preserved as a separate one-line summary for at-a-glance combat reference.
 - Cards group by level with gold-accented headers and spell counts.
 - Mobile-responsive: 1 column on mobile, 2 columns on desktop.
+
+---
+Task ID: 6
+Agent: main
+Task: Rework Page 2 — give spells more screen real estate; delete redundant Appearance and Backstory & Personality panels.
+
+Work Log:
+- Removed the `AppearancePanel` function from `src/components/dnd/character-sidebar.tsx`.
+- Removed the `BackstoryPanel` function from the same file.
+- Moved the `Alignment` field into the `LanguagesPanel` (now sits below the Languages textarea, separated by a thin top border). Same character data, just a more sensible home.
+- Restructured `CharacterSidebar` from a vertical flex column to a 3-column grid (`grid-cols-1 md:grid-cols-3`): Languages (with Alignment) | Equipment (with Magic Item Attunement) | Coins. Now sits as a compact bottom row instead of a tall right-hand sidebar.
+- Reworked `Page2` in `src/app/page.tsx`:
+  - Old: `SpellcastingHeader` + 2-col grid `[1fr_30%]` with `SpellsTable` (1fr) | `CharacterSidebar` (30%).
+  - New: `SpellcastingHeader` + `SpellsTable` (full width) + `CharacterSidebar` (bottom 3-col row). Spells now own the entire middle vertical space of Page 2.
+- Updated `SpellsTable` in `src/components/dnd/spells-table.tsx` for better readability:
+  - Removed the `max-h-[680px] overflow-y-auto` constraint — the spells section now flows naturally with the page instead of having its own internal scrollbar.
+  - Card grid changed from `grid-cols-1 lg:grid-cols-2` to `grid-cols-1 md:grid-cols-2 2xl:grid-cols-3` — 2 columns on desktop, 3 on very wide (≥1536px) screens.
+  - Spell name input bumped from `text-sm` (14px) to `text-base` (16px).
+  - Quick-notes input bumped from `text-[11px]` to `text-xs` (12px).
+  - Cast Time / Range metadata labels bumped from `text-[8px]` to `text-[9px]`, values from `text-[11px]` to `text-xs`, padding from `px-2 py-1.5` to `px-2.5 py-2`.
+  - Description text bumped from `text-[11px]` to `text-xs` (12px).
+  - Collapsed description preview max-height bumped from `max-h-[80px]` (2 lines) to `max-h-[160px]` (~5 lines) — most spells' full descriptions are now readable without expanding.
+  - Collapsed preview text color changed from `--ink-soft` (muted) to `--ink` (full strength) for readability.
+  - Expanded textarea bumped from 10 rows to 12 rows, min-height from 160px to 220px, padding from `p-2` to `p-3`.
+  - Padding on the card header bumped from `px-2 py-1.5` to `px-2.5 py-2`.
+  - Collapse/Remove buttons bumped from `w-3.5 h-3.5` icons to `w-4 h-4` icons, padding from `px-2` to `px-2.5`.
+  - Level-group headers bumped from `text-[10px]` to `text-[11px]`.
+- Removed `appearanceNotes` and `backstoryNotes` from the `CharacterSheet` interface in `src/lib/character-defaults.ts`. Also removed them from `defaultCharacter()` and `blankCharacter()`.
+- Bumped localStorage version to `v6` (cleared stale state with the old fields).
+
+Verification (Agent Browser):
+- Page loads with HTTP 200, no console errors, no runtime errors.
+- Verified Appearance and Backstory panels are GONE: `hasAppearance: false`, `hasBackstory: false`.
+- Verified Languages / Equipment / Coins / Alignment / Magic Item Attunement are still present.
+- Verified Alignment now sits directly below Languages (snapshot shows `Languages` then `Alignment` textboxes adjacent).
+- Verified the bottom-row layout: parent of the 3 sidebar panels has class `grid grid-cols-1 md:grid-cols-3 gap-2`, with `gridTemplateColumns: "413.328px 413.328px 413.344px"` — 3 equal columns at desktop.
+- Verified spell descriptions are now FULLY visible in the collapsed preview (e.g. Prestidigitation shows the entire 6-bullet list of magical effects inline; Charm Person shows all 3 paragraphs without expanding).
+- Verified spell cards are wider: each card is 612px at desktop (was 419px before — 46% wider).
+- Verified responsive grid: at mobile 375px → 1 column (327px cards); at desktop 1280px → 2 columns (612px cards); at 2xl ≥1536px → 3 columns (configurable).
+- `bun run lint` passes with 0 errors and 0 warnings.
+- Dev server log: HTTP 200 responses only, no runtime errors.
+
+Stage Summary:
+- Page 2 reworked: spells now take the full page width below the spell slots, with sidebar items (Languages+Alignment, Equipment+Attunement, Coins) demoted to a compact 3-column bottom row.
+- Appearance and Backstory & Personality panels deleted per user request.
+- Alignment preserved by moving it into the Languages panel.
+- Spell card readability improved: bigger name (16px), bigger description text (12px), bigger collapsed preview (now shows ~5 lines instead of 2), wider cards (612px vs 419px), bigger icons, more padding.
+- Mobile: 1-col cards; desktop: 2-col cards; 2xl: 3-col cards.
