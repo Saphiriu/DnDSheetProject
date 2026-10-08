@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Trash2, Dices } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { useCharacter } from '@/store/character-store'
 
 /**
@@ -26,13 +26,12 @@ function WeaponsPanel() {
   const addWeapon = useCharacter((s) => s.addWeapon)
   const updateWeapon = useCharacter((s) => s.updateWeapon)
   const removeWeapon = useCharacter((s) => s.removeWeapon)
-  const rollD20 = useCharacter((s) => s.rollD20)
 
   return (
     <div className="sheet-panel p-2">
       <div className="sheet-label-lg mb-1">WEAPONS &amp; DAMAGE</div>
       <div
-        className="grid grid-cols-[1fr_70px_120px_1fr_24px] gap-1 text-[10px] font-bold uppercase pb-1 border-b"
+        className="grid grid-cols-[1fr_90px_130px_1fr_24px] gap-1 text-[10px] font-bold uppercase pb-1 border-b"
         style={{ color: 'var(--ink-soft)', borderColor: 'var(--rule)' }}
       >
         <div>Name</div>
@@ -53,7 +52,7 @@ function WeaponsPanel() {
           sheet.weapons.map((w) => (
             <div
               key={w.id}
-              className="grid grid-cols-[1fr_70px_120px_1fr_24px] gap-1 py-0.5 items-center"
+              className="grid grid-cols-[1fr_90px_130px_1fr_24px] gap-1 py-0.5 items-center"
             >
               <input
                 type="text"
@@ -63,31 +62,14 @@ function WeaponsPanel() {
                 placeholder="Longsword"
                 aria-label="Weapon name"
               />
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={w.atkBonus}
-                  onChange={(e) => updateWeapon(w.id, { atkBonus: e.target.value })}
-                  className="sheet-input-box text-xs w-full"
-                  placeholder="+5"
-                  aria-label="Attack bonus"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const m = parseInt(w.atkBonus.replace(/[^-\d]/g, ''), 10)
-                    if (!Number.isNaN(m)) {
-                      rollD20(m, `Attack — ${w.name || 'weapon'}`)
-                    }
-                  }}
-                  className="ml-0.5"
-                  style={{ color: 'var(--ink-soft)' }}
-                  aria-label="Roll attack"
-                  title="Roll d20 attack"
-                >
-                  <Dices className="w-3 h-3" />
-                </button>
-              </div>
+              <input
+                type="text"
+                value={w.atkBonus}
+                onChange={(e) => updateWeapon(w.id, { atkBonus: e.target.value })}
+                className="sheet-input-box text-xs w-full"
+                placeholder="+5"
+                aria-label="Attack bonus"
+              />
               <input
                 type="text"
                 value={w.damage}

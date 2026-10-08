@@ -66,13 +66,11 @@ export interface CharacterSheet {
   deathSavesSuccesses: boolean[] // length 3
   deathSavesFailures: boolean[] // length 3
 
-  // Stat bar
-  proficiencyBonus: string
-  intelligence: string // override modifier shown
-  initiative: string
+  // Stat bar — only editable base values.
+  // proficiencyBonus, initiative, and passivePerception are auto-derived
+  // at render time from level / DEX / WIS + perception proficiency.
   speed: string
   size: string
-  passivePerception: string
 
   // Abilities
   abilities: Record<AbilityKey, AbilityState>
@@ -98,12 +96,11 @@ export interface CharacterSheet {
   toolsProficient: string
   languages: string
   heroicInsppiration: boolean
+  jackOfAllTrades: boolean // Bard level-2 feature: adds floor(PB/2) to non-proficient ability checks
 
-  // Spellcasting
+  // Spellcasting — spellcasting ability is chosen; modifier / save DC / attack
+  // bonus are all auto-derived at render time.
   spellcastingAbility: string // e.g. 'Charisma'
-  spellcastingModifier: string
-  spellSaveDC: string
-  spellAttackBonus: string
   spellSlots: SpellSlotState[] // length 9
   spells: SpellRowState[]
   damageCantrips: string // the "Weapons & Damage Cantrips" free text in weapons area
@@ -147,13 +144,11 @@ export function defaultCharacter(): CharacterSheet {
     deathSavesSuccesses: [false, false, false],
     deathSavesFailures: [false, false, false],
 
-    // Proficiency bonus auto-calc would be +2 at level 2 — keep override
-    proficiencyBonus: '+2',
-    intelligence: '+0',
-    initiative: '+3',
+    // NOTE: proficiencyBonus, initiative, passivePerception, spellcastingModifier,
+    // spellSaveDC, and spellAttackBonus are all auto-derived at render time
+    // from level / ability scores / proficiency toggles.
     speed: '30',
     size: 'M',
-    passivePerception: '10',
 
     abilities: {
       str: { score: 11, saveProficient: false },
@@ -234,11 +229,9 @@ export function defaultCharacter(): CharacterSheet {
     toolsProficient: 'Drum, Lute, Panflute (3 instruments)',
     languages: 'Common, Elvish, Celestial, Druid',
     heroicInsppiration: true,
+    jackOfAllTrades: true, // Bard level-2 class feature
 
     spellcastingAbility: 'Charisma',
-    spellcastingModifier: '+4',
-    spellSaveDC: '14',
-    spellAttackBonus: '+6',
     spellSlots: [
       { total: 3, expended: 0 }, // L1
       { total: 0, expended: 0 }, // L2
@@ -317,12 +310,8 @@ export function blankCharacter(): CharacterSheet {
     hitDiceMax: '1',
     deathSavesSuccesses: [false, false, false],
     deathSavesFailures: [false, false, false],
-    proficiencyBonus: '+2',
-    intelligence: '+0',
-    initiative: '+0',
     speed: '30',
     size: 'M',
-    passivePerception: '10',
     abilities,
     skills,
     weapons: [],
@@ -338,10 +327,8 @@ export function blankCharacter(): CharacterSheet {
     toolsProficient: '',
     languages: '',
     heroicInspiration: false,
+    jackOfAllTrades: false,
     spellcastingAbility: '',
-    spellcastingModifier: '',
-    spellSaveDC: '',
-    spellAttackBonus: '',
     spellSlots: [
       { total: 2, expended: 0 }, { total: 0, expended: 0 }, { total: 0, expended: 0 },
       { total: 0, expended: 0 }, { total: 0, expended: 0 }, { total: 0, expended: 0 },

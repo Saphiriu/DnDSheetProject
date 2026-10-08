@@ -5,7 +5,6 @@ import {
   ABILITY_NAMES,
   ABILITY_ORDER,
   SKILLS,
-  SAVING_THROWS,
   abilityModifier,
   proficiencyBonusByLevel,
   skillCheckTotal,
@@ -18,13 +17,11 @@ import {
  * saving-throw row, and the list of skills (with proficiency circles and
  * per-skill totals). Visually faithful to the official sheet.
  *
- * Layout (top → bottom):
- *   ┌─ ability name ──────────────────────────────┐
- *   │  ⬆ modifier circle   score (trapezoid)      │
- *   │  saving-throw row (circle + label + total)  │
- *   │  skill row 1 …                               │
- *   │  skill row 2 …                               │
- *   └──────────────────────────────────────────────┘
+ * Skill totals are auto-derived:
+ *   proficient + no expertise → ability mod + proficiency bonus
+ *   proficient + expertise     → ability mod + 2 × proficiency bonus
+ *   not proficient + JoAT on   → ability mod + floor(proficiency bonus / 2)
+ *   not proficient + JoAT off  → ability mod
  */
 export function AbilityCard({ ability }: { ability: AbilityKey }) {
   const sheet = useCharacter((s) => s.sheet)
@@ -37,13 +34,15 @@ export function AbilityCard({ ability }: { ability: AbilityKey }) {
 
   const level = typeof sheet.level === 'number' ? sheet.level : 1
   const prof = proficiencyBonusByLevel(level)
+  const joat = sheet.jackOfAllTrades
 
   const score = sheet.abilities[ability].score
   const scoreNum = typeof score === 'number' && !Number.isNaN(score) ? score : 0
   const mod = abilityModifier(scoreNum)
 
   const isSaveProficient = sheet.abilities[ability].saveProficient
-  const saveTotal = mod + (isSaveProficient ? prof : 0)
+  // Saving throws are ability checks, so JoAT also applies when not proficient.
+  const saveTotal = skillCheckTotal(mod, prof, isSaveProficient, false, joat)
 
   // All skills belonging to this ability
   const skillsForAbility = SKILLS.filter((s) => s.ability === ability)
@@ -112,6 +111,7 @@ export function AbilityCard({ ability }: { ability: AbilityKey }) {
             prof,
             st.proficient,
             st.expertise,
+            joat,
           )
           return (
             <div
@@ -166,3 +166,4 @@ export function AbilityGrid() {
     </div>
   )
 }
+

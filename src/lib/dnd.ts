@@ -98,19 +98,33 @@ export function passivePerception(
 }
 
 /**
- * Skill check modifier = ability modifier + (proficiency bonus if proficient) + (additional/expertise bonus).
+ * Skill check modifier = ability modifier + (proficiency bonus if proficient) + (additional bonus for expertise).
  *
  * Expertise doubles the proficiency bonus (Rogues and Bards at certain levels).
  * The `expertise` flag here is a simpler version: if true, proficiency bonus is doubled.
+ *
+ * `joat` (Jack of All Trades, Bard level 2 feature) adds floor(profBonus / 2) to
+ * ability checks the character is NOT proficient in.
  */
 export function skillCheckTotal(
   abilityMod: number,
   profBonus: number,
   proficient: boolean,
   expertise = false,
+  joat = false,
 ): number {
-  if (!proficient) return abilityMod
-  return abilityMod + (expertise ? profBonus * 2 : profBonus)
+  if (proficient) return abilityMod + (expertise ? profBonus * 2 : profBonus)
+  if (joat) return abilityMod + jackOfAllTrades(profBonus)
+  return abilityMod
+}
+
+/**
+ * Jack of All Trades bonus = floor(profBonus / 2).
+ * At levels 1-4 (PB +2) → +1, levels 5-8 (PB +3) → +1, levels 9-12 (PB +4) → +2,
+ * levels 13-16 (PB +5) → +2, levels 17-20 (PB +6) → +3.
+ */
+export function jackOfAllTrades(profBonus: number): number {
+  return Math.floor(profBonus / 2)
 }
 
 /**
