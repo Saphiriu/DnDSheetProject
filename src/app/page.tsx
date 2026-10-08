@@ -56,14 +56,14 @@ export default function Home() {
                 className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[var(--blood)] rounded-none"
                 style={{ color: 'var(--ink)' }}
               >
-                Page 2 · Spells &amp; Equipment
+                Page 2 · Spellcasting
               </TabsTrigger>
               <TabsTrigger
-                value="all"
+                value="page3"
                 className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[var(--blood)] rounded-none"
                 style={{ color: 'var(--ink)' }}
               >
-                All (single page)
+                Page 3 · Miscellaneous
               </TabsTrigger>
             </TabsList>
 
@@ -73,11 +73,8 @@ export default function Home() {
             <TabsContent value="page2" className="mt-2 focus-visible:outline-none">
               <Page2 />
             </TabsContent>
-            <TabsContent value="all" className="mt-2 focus-visible:outline-none">
-              <div className="flex flex-col gap-3">
-                <Page1 />
-                <Page2 />
-              </div>
+            <TabsContent value="page3" className="mt-2 focus-visible:outline-none">
+              <Page3 />
             </TabsContent>
           </Tabs>
 
@@ -124,14 +121,31 @@ function Page1() {
 }
 
 function Page2() {
+  // Page 2 is now solely for spellcasting — spell stats + spell slots + spell cards.
+  // (Languages / Equipment / Coins moved to Page 3 · Miscellaneous.)
   return (
     <div className="flex flex-col gap-2">
       <SpellcastingHeader />
-      {/* Spells take the full width below the spell slots — more cards visible
-          at once, descriptions are easier to read. */}
       <SpellsTable />
-      {/* The sidebar items (Languages + Alignment, Equipment + Attunement,
-          Coins) move to a compact 3-column row at the bottom of Page 2. */}
+    </div>
+  )
+}
+
+function Page3() {
+  // Page 3 · Miscellaneous — Languages + Alignment, Equipment + Magic Item
+  // Attunement, Coins. Given a full page now (instead of being a compact
+  // bottom row) so the panels have more breathing room.
+  return (
+    <div className="flex flex-col gap-3">
+      <div
+        className="sheet-banner text-xl md:text-2xl py-2 mb-1"
+      >
+        MISCELLANEOUS
+        <span className="block text-xs font-normal tracking-normal mt-0.5"
+              style={{ color: 'var(--ink-soft)' }}>
+          Languages, equipment, attunement &amp; coins
+        </span>
+      </div>
       <CharacterSidebar />
     </div>
   )

@@ -298,3 +298,43 @@ Stage Summary:
 - Alignment preserved by moving it into the Languages panel.
 - Spell card readability improved: bigger name (16px), bigger description text (12px), bigger collapsed preview (now shows ~5 lines instead of 2), wider cards (612px vs 419px), bigger icons, more padding.
 - Mobile: 1-col cards; desktop: 2-col cards; 2xl: 3-col cards.
+
+---
+Task ID: 7
+Agent: main
+Task: Restructure tabs (Page 2 solely spellcasting, replace "All" with "Page 3 · Miscellaneous"); make spell cards compact (description only visible when unfurled).
+
+Work Log:
+- Restructured the tabs in `src/app/page.tsx`:
+  - Renamed "Page 2 · Spells & Equipment" → "Page 2 · Spellcasting" (now solely for spellcasting content).
+  - Removed the "All (single page)" tab; replaced with "Page 3 · Miscellaneous".
+  - The new "page3" tab value maps to a new `Page3` component.
+- Reworked `Page2` component: removed the `<CharacterSidebar />` from the bottom (which had Languages/Equipment/Coins). Page 2 is now solely: `SpellcastingHeader` + `SpellsTable`.
+- Added a new `Page3` component that hosts the `CharacterSidebar` (Languages + Alignment, Equipment + Magic Item Attunement, Coins) with a "MISCELLANEOUS" banner header. The sidebar panels now have a full page of vertical space (instead of being squeezed into a 3-col bottom row on Page 2).
+- Made spell cards compact per user request:
+  - Removed the always-visible description preview from collapsed cards entirely.
+  - Collapsed cards now show only: header (level badge + name + concentration/ritual tags + V/S/M component toggles + collapse/remove buttons), metadata row (Cast Time | Range), quick-notes row (Sparkles + mechanical summary), and the footer (Concentration toggle | Ritual toggle | Level picker).
+  - The full description textarea is hidden by default and only appears when the user clicks the chevron to "unfurl" the card. The textarea appears between the quick notes and the footer (with a top border for visual separation).
+  - Added a small "READ" hint label (in gold) under the chevron on collapsed cards that have a description, so users know there's a description to expand.
+- `bun run lint` passes with 0 errors and 0 warnings. No schema change, no localStorage version bump needed (the `description` field added in the previous step is still there; the cards just hide it by default now).
+
+Verification (Agent Browser):
+- Page loads with HTTP 200, no console errors, no runtime errors.
+- Verified the three tabs render correctly:
+  - "Page 1 · Combat & Abilities"
+  - "Page 2 · Spellcasting"
+  - "Page 3 · Miscellaneous"
+- Verified Page 2 contains ONLY spellcasting content (SPELLCASTING panel + spell slots 3x3 + spell cards). No Languages/Equipment/Coins on Page 2.
+- Verified Page 3 contains the MISCELLANEOUS banner + Languages + Alignment + Equipment + Magic Item Attunement + Coins.
+- Verified all 8 collapsed spell cards are now 178px tall (was ~280px+ with the description preview). The page is much more compact — 8 cards fit in roughly the same vertical space as 5 did before.
+- Verified `has_description_visible: false` for all 8 collapsed cards (descriptions are hidden by default).
+- Clicked the expand chevron on Vicious Mockery → card expanded from 178px to 437px, showing the full description textarea with the actual spell text ("You unleash a string of insults laced with subtle enchantments at a creature you can see within range...").
+- Verified mobile responsiveness: at 375px viewport, spell cards stack to 1 column (327px wide each).
+- Dev server log: HTTP 200 responses only, no runtime errors.
+
+Stage Summary:
+- Page 2 is now solely for spellcasting (SpellcastingHeader + SpellsTable).
+- Page 3 · Miscellaneous is a new dedicated page for Languages + Alignment, Equipment + Magic Item Attunement, and Coins (with a "MISCELLANEOUS" banner header). Sidebar panels now have a full page of vertical space.
+- Spell cards are now compact by default: collapsed cards show only basic info (level, name, components, cast time, range, quick notes, footer toggles) — no description preview. The full description only appears when the user clicks the chevron to unfurl the card.
+- "READ" hint label appears on collapsed cards that have a description, signaling that there's content to expand.
+- Compact layout: 8 collapsed cards fit in the vertical space that previously held ~5 cards-with-previews.

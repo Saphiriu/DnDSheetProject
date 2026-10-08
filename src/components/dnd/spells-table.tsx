@@ -190,14 +190,22 @@ function SpellCard({ spell, onChange, onRemove }: SpellCardProps) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="flex-1 px-2.5 flex items-center justify-center hover:bg-rule/10 transition-colors"
+            className="flex-1 px-2.5 flex flex-col items-center justify-center gap-0.5 hover:bg-rule/10 transition-colors"
             style={{ color: 'var(--ink-soft)' }}
             aria-label={expanded ? 'Collapse description' : 'Expand description'}
-            title={expanded ? 'Collapse' : 'Expand full description'}
+            title={expanded ? 'Hide description' : 'Show full description'}
           >
             {expanded
               ? <ChevronUp className="w-4 h-4" />
               : <ChevronDown className="w-4 h-4" />}
+            {!expanded && s.description && (
+              <span
+                className="text-[7px] font-bold uppercase tracking-wider leading-none"
+                style={{ color: 'var(--gold)' }}
+              >
+                Read
+              </span>
+            )}
           </button>
           <button
             type="button"
@@ -249,34 +257,21 @@ function SpellCard({ spell, onChange, onRemove }: SpellCardProps) {
         />
       </div>
 
-      {/* Description — the main feature.
-          When collapsed: shows a non-editable preview of the first ~5 lines
-          (enough to read most spell descriptions without expanding).
-          When expanded: shows an editable textarea with the full description. */}
-      {expanded ? (
+      {/* Description — hidden when collapsed for a compact card layout.
+          Only shows when the user unfurls the card via the chevron.
+          Collapsed cards display just the basic info: name, level, components,
+          cast time, range, and the quick mechanical notes. */}
+      {expanded && (
         <textarea
           value={s.description}
           onChange={(e) => onChange({ description: e.target.value })}
           rows={12}
           placeholder="Full spell description (mechanics, scaling, flavor…)"
-          className="w-full bg-transparent border-0 outline-none text-xs leading-relaxed p-3 resize-y sheet-grid min-h-[220px]"
-          style={{ color: 'var(--ink)' }}
+          className="w-full bg-transparent border-0 outline-none text-xs leading-relaxed p-3 resize-y sheet-grid min-h-[220px] border-t"
+          style={{ color: 'var(--ink)', borderColor: 'var(--rule)' }}
           aria-label="Full spell description"
           autoFocus
         />
-      ) : (
-        <div
-          onClick={() => setExpanded(true)}
-          className="px-3 py-2.5 text-xs leading-relaxed cursor-text sheet-grid min-h-[100px] max-h-[160px] overflow-hidden whitespace-pre-wrap"
-          style={{ color: 'var(--ink)' }}
-          title="Click to edit the full description"
-        >
-          {s.description
-            ? s.description
-            : <span className="italic" style={{ color: 'var(--ink-faint)' }}>
-                Click to add full spell description…
-              </span>}
-        </div>
       )}
 
       {/* Footer — toggleable flags row */}
