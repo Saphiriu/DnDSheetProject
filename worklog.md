@@ -203,3 +203,50 @@ Stage Summary:
 - JoAT no longer applies to saving throws — only to skill checks. Matches the common house-rule interpretation.
 - JoAT toggle button moved into its own panel below the Heroic Inspiration shield, fully visible (no longer clipped by the shield's pointed-bottom clip-path).
 - Entire GUI is now dark-themed: deep warm brown background, warm cream text, bronze borders, gold accents, with subtle torchlight glow from the top and darker corners (vignette). All shadcn components (Dialog, Tabs, Buttons) inherit the dark theme via the updated CSS variables.
+
+---
+Task ID: 5
+Agent: main
+Task: Rework the spell tab from a table into spell cards that can display full descriptions.
+
+Work Log:
+- Added a new `description: string` field to the `SpellRowState` interface in `src/lib/character-defaults.ts` (kept the existing `notes` field for short mechanical summaries, added `description` for the full spell text).
+- Populated the `description` field for all 8 example spells with their actual DnD 5e/5.5e spell text (Vicious Mockery, Prestidigitation, Mind Sliver, Charm Person, Color Spray, Bane, Cure Wounds, Sleep). Also slightly cleaned up the `notes` and `range` fields (e.g. Sleep's notes changed from the inaccurate "Wis save" to "5d8 HP slumber · no save" since Sleep has no save in 5e; Color Spray's range clarified to "15 ft cone"; Charm Person's notes to "Charm 1h · Wis save"; etc.).
+- Updated the store's `addSpell` action to include `description: ''` so newly-added spells start with an empty description.
+- Completely rewrote `src/components/dnd/spells-table.tsx` from a table layout into a card grid layout:
+  - Spells are still grouped by level (Cantrips, Level 1 Spells, etc.) with a gold-accented level header showing the spell count.
+  - Each spell is now a card (not a table row) with the following structure:
+    - **Header bar**: Bronze/gold level badge (e.g. "C" or "L1") on the left, editable spell name input, concentration/ritual tag chips, and inline V/S/M component toggle letters on the right. Collapse/remove buttons stacked vertically on the far right.
+    - **Metadata row**: Cast Time (with Clock icon) | Range (with Target icon) — both editable inputs in a 2-col grid.
+    - **Quick notes row**: A short italic one-line input for the mechanical summary (e.g. "1d6 Psychic · Wis save · disadv next attack") — this is the old `notes` field, kept for at-a-glance combat info.
+    - **Description area**: The main feature.
+      - When collapsed: shows a non-editable preview (first ~80px of the description text) on a graph-paper background. Clicking the preview expands the card.
+      - When expanded: shows a 10-row editable textarea with the full spell description (multi-paragraph, supports \n\n).
+    - **Footer bar**: Three toggle buttons — Concentration (Flame icon, turns red when active), Ritual (Sparkles icon, turns gold when active), and a Level picker dropdown (Cantrip/L1..L9).
+  - Cards are arranged in a responsive grid: 1 column on mobile, 2 columns on desktop (lg breakpoint).
+  - The spell list container has a max-height (680px) with scroll overflow and a custom-styled scrollbar.
+  - "Add spell" button is in the panel header (top-right), making it always visible regardless of scroll position.
+- Bumped localStorage version to `v5` so the new schema (with `description` field) loads cleanly — old `v4` state without the description field is discarded and the example character (with full descriptions) loads instead.
+
+Verification (Agent Browser):
+- Page loads with HTTP 200, no console errors, no runtime errors.
+- Verified the spell cards render with all 8 example spells on Page 2:
+  - 3 cantrip cards under "Cantrips (3)" header: Vicious Mockery, Prestidigitation, Mind Sliver.
+  - 5 spell cards under "Level 1 Spells (5)" header: Charm Person, Color Spray, Bane, Cure Wounds, Sleep.
+- Each card shows: level badge, editable name, concentration/ritual tags where applicable, V/S/M component letters (with active/inactive styling), cast time + range metadata, italic quick notes line, and a clickable description preview.
+- Clicked the description preview on Charm Person → card expanded to a 10-row textarea with the full text: "You attempt to charm a humanoid you can see within range. It must make a Wisdom saving throw, and does so with advantage if you or your companions are fighting it..." — fully editable.
+- Clicked the chevron expand button on Prestidigitation → same expand behavior, full description "This spell is a minor magical trick that novice spellcasters use for practice. You create one of the following magical effects..." was displayed in the editable textarea.
+- Tested "Add spell" button → a new empty spell card was added with empty name, "L1" badge, and placeholder text "Click to add full spell description…" in the description preview.
+- Tested "Remove spell" button → the empty card was removed (count went 9 → 8).
+- Verified responsive layout: at desktop (1280px viewport) the cards grid renders 2 columns (`419px + 419px`); at mobile (375px) it stacks to 1 column.
+- `bun run lint` passes with 0 errors and 0 warnings.
+- Dev server log: HTTP 200 responses only, no runtime errors.
+
+Stage Summary:
+- Spell tab is now a card grid (was a table).
+- Each spell is a self-contained card showing all metadata + a fully-editable full description.
+- Description is collapsed by default (saves screen space) but expands on click to a 10-row textarea where the user can read/edit the full spell text.
+- All 8 example spells come pre-populated with their actual DnD 5e spell descriptions.
+- Quick mechanical notes (the old `notes` field) are preserved as a separate one-line summary for at-a-glance combat reference.
+- Cards group by level with gold-accented headers and spell counts.
+- Mobile-responsive: 1 column on mobile, 2 columns on desktop.
