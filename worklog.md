@@ -142,3 +142,64 @@ Stage Summary:
 - Jack of All Trades toggle added under the Heroic Inspiration shield.
 - Spellcasting modifier / save DC / attack bonus also auto-derive from the chosen spellcasting ability + level.
 - No more "Recalc" button — everything auto-updates at render time.
+
+---
+Task ID: 4
+Agent: main
+Task: User-requested fixes — JoAT for saving throws, clipped JoAT button, dark theme.
+
+Work Log:
+- Fixed JoAT so it does NOT apply to saving throws. In `src/components/dnd/ability-card.tsx`, changed `saveTotal = skillCheckTotal(mod, prof, isSaveProficient, false, joat)` to `saveTotal = mod + (isSaveProficient ? prof : 0)` (saving throws are no longer passed the `joat` flag). Updated the docstring to clarify: "Saving throws DO NOT benefit from Jack of All Trades — only skills do."
+- Fixed the JoAT button being clipped by the shield shape. The `sheet-shield` class uses `clip-path: polygon(0 0, 100% 0, 100% 55%, 50% 100%, 0 55%)` — anything below 55% on the sides gets clipped. Restructured `src/components/dnd/proficiencies-row.tsx` left column from a single shield-with-both-elements to a flex column with TWO separate panels: (a) `sheet-shield` containing only the Heroic Inspiration star, (b) `sheet-panel` (rectangular with chamfered corners) below it containing the JoAT toggle. The JoAT button now sits inside its own rectangular panel that doesn't clip.
+- Switched the entire GUI to a dark theme by updating `src/app/globals.css`:
+  - Shadcn variables in `:root` (background, foreground, card, popover, primary, secondary, muted, accent, border, input, ring, sidebar) all set to dark-theme oklch values (deep warm brown background #1a1410, warm cream foreground, gold primary, bronze borders).
+  - DnD-specific variables set to dark-friendly values:
+    - `--parchment: #1a1410` (deep warm brown-black)
+    - `--parchment-dark: #251c14` (slightly lighter for toolbar/footer)
+    - `--ink: #e8dcc4` (warm cream text)
+    - `--ink-soft: #b8a378` (warm beige)
+    - `--ink-faint: #7a6a4f` (faded brown)
+    - `--rule: #6b5a3a` (warm bronze border)
+    - `--blood: #d4453f` (brighter red for dark bg)
+    - `--gold: #d4a949` (brighter gold accent)
+    - `--grid: rgba(212, 169, 73, 0.08)` (subtle warm gold graph lines)
+  - Updated `.parchment-bg` texture for dark:
+    - Radial gradients now produce a warm gold glow from the top (like torchlight) and darker corners (vignette effect).
+    - The repeating-linear-gradient grain uses `rgba(255, 220, 150, 0.02)` (very subtle light grain) with `mix-blend-mode: screen` (makes light grain visible on dark, vs. the previous `multiply` for dark grain on light).
+  - Updated `.sheet-banner` to add a soft `text-shadow: 0 0 20px rgba(212, 169, 73, 0.3)` for a warm glow on the D&D title.
+  - Updated `.sheet-input-line:focus` and `.sheet-input-box:focus` background tints from hardcoded `rgba(58, 44, 20, 0.06)` (invisible on dark) to `rgba(212, 169, 73, 0.12)` (visible gold tint).
+  - Added glowing box-shadows to active states: `.sheet-star.is-active`, `.sheet-diamond.is-filled`, `.sheet-circle.is-expertise` all get a subtle warm glow effect.
+- Updated the armor-training gold tint in `src/components/dnd/proficiencies-row.tsx` from `rgba(180, 138, 59, 0.15)` (faded brown, was OK on light) to `rgba(212, 169, 73, 0.18)` (brighter gold, visible on dark). Same for the JoAT toggle button.
+
+Verification (Agent Browser):
+- Page loads with HTTP 200, no console errors, no runtime errors.
+- Verified dark theme colors via getComputedStyle:
+  - main background: `rgb(26, 20, 16)` = `#1a1410` (deep dark brown) ✓
+  - panel background: same dark brown ✓
+  - body color: LAB L=90.7 (warm cream) ✓
+- Verified JoAT button is now visible (was previously clipped):
+  - Button rect: 164px × 43.75px (non-zero, fully visible)
+  - `btnInsideParent: true` (entirely contained in its parent panel, not clipped)
+  - background: `rgba(212, 169, 73, 0.15)` (gold tint — active state)
+  - color: `rgb(232, 220, 196)` (cream text)
+- Verified JoAT no longer applies to saving throws (Bard example, JoAT ON):
+  - STR save: +0 (not proficient, no JoAT bonus) ✓ was +1 before fix
+  - DEX save: +0 (not proficient, no JoAT bonus) ✓ was +1 before fix
+  - CON save: +4 (proficient: +2 mod + +2 PB) ✓
+  - WIS save: +3 (not proficient, no JoAT bonus) ✓ was +4 before fix
+  - CHA save: +4 (not proficient, no JoAT bonus) ✓ was +5 before fix
+- Verified JoAT still applies to SKILLS:
+  - Athletics (not proficient): +1 = 0 + 1 JoAT ✓
+  - Religion (not proficient): +1 = 0 + 1 JoAT ✓
+  - Intimidation (not proficient): +5 = 4 + 1 JoAT ✓
+  - Acrobatics (proficient): +2 = 0 + 2 PB ✓ (no JoAT because proficient)
+  - Perception (proficient): +5 = 3 + 2 PB ✓ (no JoAT because proficient)
+- Verified spell stats still correct on dark theme: Spellcasting Modifier +4, Spell Save DC 14, Spell Attack Bonus +6 ✓
+- Mobile viewport (375x800) dark theme renders correctly ✓
+- `bun run lint` passes with 0 errors and 0 warnings.
+- Dev server log: HTTP 200 responses only, no runtime errors.
+
+Stage Summary:
+- JoAT no longer applies to saving throws — only to skill checks. Matches the common house-rule interpretation.
+- JoAT toggle button moved into its own panel below the Heroic Inspiration shield, fully visible (no longer clipped by the shield's pointed-bottom clip-path).
+- Entire GUI is now dark-themed: deep warm brown background, warm cream text, bronze borders, gold accents, with subtle torchlight glow from the top and darker corners (vignette). All shadcn components (Dialog, Tabs, Buttons) inherit the dark theme via the updated CSS variables.
